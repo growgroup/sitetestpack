@@ -15,7 +15,6 @@
     "babel-preset-es2015": "^6.3.13"
   },
   "dependencies": {
-    "broken-link-checker": "^0.7.4",
     "chalk": "^1.1.3",
     "cheerio": "^0.22.0",
     "cli-table2": "^0.2.0",
@@ -25,7 +24,6 @@
     "pageres": "^4.3.0",
     "prompt": "^1.0.0",
     "request": "^2.79.0",
-    "run-sequence": "^1.1.5",
     "url-parse": "^1.1.7"
   }
 }

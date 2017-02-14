@@ -14,8 +14,7 @@ var TITLE = `
 
 `
 
-
-console.log( colors.magenta(TITLE) )
+console.log(colors.magenta(TITLE))
 prompt.message = colors.magenta("SiteTestPack");
 prompt.delimiter = colors.green(":");
 
@@ -45,7 +44,7 @@ prompt.get({
         },
     }
 }, function (err, result) {
-    if ( err ){
+    if (err) {
         throw err;
     }
 
@@ -53,54 +52,49 @@ prompt.get({
      * 1. リンクを取得する
      */
     console.log(colors.cyan(result.url + " からURL一覧を取得しています...."));
-    var getlinks = new GetLinks(result.url, "", result.number,result.ignoreurl);
-    getlinks.then(function(data){
+    var getlinks = new GetLinks(result.url, "", result.number, result.ignoreurl);
+    getlinks.then(function (data) {
         var table = new Table({
-            head: ["url","title"]
+            head: ["url", "title"]
         })
         var _pages = []
-        for(var i = 0; i < data.length; i++){
-            table.push([data[i].url,data[i].title])
+        for (var i = 0; i < data.length; i++) {
+            table.push([data[i].url, data[i].title])
             _pages.push(data[i].url);
         }
         console.log(colors.cyan(table.toString()))
-        if ( result.runSitecheck === "y" ){
+        if (result.runSitecheck === "y") {
             /**
              * 2. サイトチェック
              * @type {SiteCheck}
              */
             console.log(colors.cyan("サイトチェックを開始しています...."))
             var sc = new SiteCheck(_pages);
-            sc.then(function(scObj){
+            sc.then(function (scObj) {
                 var table = new Table();
-                for(var i = 0; i < scObj.data.length; i++){
+                for (var i = 0; i < scObj.data.length; i++) {
                     table.push(scObj.data[i])
                 }
                 console.log(colors.cyan(table.toString()))
-
-                if ( result.runScreenshot === "y" ) {
+                console.log(colors.cyan("チェック結果をcsvにエクスポートしました"))
+                if (result.runScreenshot === "y") {
                     /**
                      * スクリーンショット
                      * @type {Screenshot}
                      */
-                    var screen = new Screenshot(0, _pages);
-                    screen.then(function (screenObj) {
-                        // console.log(colors.cyan("スクリーンショットを撮り終えました"));
-                    })
+                    new Screenshot(0, _pages);
                 }
             })
         }
-        if ( result.runSitecheck === "n" && result.runScreenshot === "y" ){
+
+        if (result.runSitecheck === "n" && result.runScreenshot === "y") {
             /**
              * スクリーンショット
              * @type {Screenshot}
              */
-            var screen = new Screenshot(0, _pages);
-            screen.then(function (screenObj) {
-                // console.log(colors.cyan("スクリーンショットを撮り終えました"));
-            })
-        }
+            new Screenshot(0, _pages);
 
+        }
 
     })
 });
