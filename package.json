@@ -1,0 +1,36 @@
+{
+  "name": "sitetestpack",
+  "version": "1.0.0",
+  "description": "This is a test script for the website",
+  "engines": {
+    "node": ">=5.0.0"
+  },
+  "scripts": {
+    "screenshot": "babel-node lib/screenshot.js",
+    "sitecheck": "babel-node lib/sitecheck.js",
+    "getlinks": "babel-node lib/getlinks.js",
+    "linkcheck": "babel-node lib/linkcheck.js > ./results/linkcheck.log",
+    "checkall": "npm run screenshot && npm run sitecheck && npm run linkcheck"
+  },
+  "author": "GrowGroup",
+  "devDependencies": {
+    "babel-cli": "^6.22.1",
+    "babel-core": "^6.3.26",
+    "babel-preset-es2015": "^6.3.13",
+    "babelify": "^7.2.0"
+  },
+  "dependencies": {
+    "broken-link-checker": "^0.7.4",
+    "chalk": "^1.1.3",
+    "cheerio": "^0.22.0",
+    "cli-table2": "^0.2.0",
+    "colors": "^1.1.2",
+    "del": "^2.2.0",
+    "fs-extra": "^2.0.0",
+    "pageres": "^4.3.0",
+    "prompt": "^1.0.0",
+    "request": "^2.79.0",
+    "run-sequence": "^1.1.5",
+    "url-parse": "^1.1.7"
+  }
+}
