@@ -2,7 +2,7 @@ import cheerio from 'cheerio'
 import request from 'request'
 import fsextra from "fs-extra"
 import {log} from "./util.js"
-import config from "../config.js"
+import config from "./config.js"
 
 // ページ一覧
 var defaultPages = config.pages

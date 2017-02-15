@@ -1,7 +1,7 @@
 import chalk from "chalk"
 import fs from "fs-extra"
 import util from 'util'
-import config from "../config.js"
+import config from "./config.js"
 const pages = config.pages;
 const options = config.screenshots;
 

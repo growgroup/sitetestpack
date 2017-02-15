@@ -1,5 +1,5 @@
 import {cleanDirectroy, log} from "./util.js"
-import config from "../config.js"
+import config from "./config.js"
 const Pageres = require("pageres")
 const defaultPages = config.pages
 const options = config.screenshots
