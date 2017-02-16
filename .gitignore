@@ -1,7 +1,5 @@
 node_modules
-results
+sitetestpack_results
 *.log
 .idea
 dist
-src/results
-dist/results

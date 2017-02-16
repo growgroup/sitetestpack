@@ -1,6 +1,6 @@
 {
   "name": "sitetestpack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "This is a test script for the website",
   "engines": {
     "node": ">=5.0.0"
@@ -29,6 +29,7 @@
     "cli-table2": "^0.2.0",
     "colors": "^1.1.2",
     "configstore": "^3.0.0",
+    "csv": "^1.1.1",
     "del": "^2.2.0",
     "fs-extra": "^2.0.0",
     "htmllint": "^0.6.0",

@@ -3,6 +3,7 @@ import cheerio from 'cheerio'
 import URL from 'url-parse';
 import config from "./config.js"
 import fsextra from "fs-extra"
+import exportCsv from "./export_csv.js"
 import LinkQueue from "./linkqueue.js"
 
 const pages = config.get("pages")
@@ -97,12 +98,6 @@ export default class GetLinks {
 
         });
     }
-    sort(){
-        this.listurls.sort(function(a,b){
-            console.log(b.url)
-            return (a.url > b.url)
-        })
-    }
 
     /**
      * リンクをし、queue へ格納する
@@ -169,6 +164,15 @@ export default class GetLinks {
     }
 
     /**
+     * リストしたURLを並び替える
+     */
+    sort(){
+        this.listurls.sort(function(a,b){
+            return (a.url > b.url)
+        })
+    }
+
+    /**
      * CSVに出力する
      */
     output() {
@@ -178,14 +182,17 @@ export default class GetLinks {
         lineArray.push(headers)
         this.listurls.forEach(function (infoArray, index) {
             var _infoArray = [index,infoArray.url,infoArray.title]
-            var line = _infoArray.join(",")
-            lineArray.push(line)
+            lineArray.push(_infoArray)
         })
-        var csvContent = lineArray.join("\n")
-        fsextra.outputFile(config.get("resultsDirPath") + options.output, csvContent, (err, data) => {
-            if (err) {
-                console.log(err);
-            }
+
+        exportCsv(lineArray).then((data)=>{
+
+            fsextra.outputFile(config.get("resultsDirPath") + options.output, data, (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+            })
+
         })
     }
 }

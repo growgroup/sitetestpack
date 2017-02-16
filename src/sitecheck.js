@@ -1,9 +1,9 @@
 import cheerio from 'cheerio'
 import request from 'request'
-
 import fsextra from "fs-extra"
 import htmllint from "htmllint"
 import {log} from "./util.js"
+import exportCsv from "./export_csv.js"
 import config from "./config.js"
 
 // ページ一覧
@@ -23,6 +23,7 @@ export default class SiteCheck {
         if (typeof pages !== "undefined") {
             this.checkPages = pages
         }
+
         this.data = [];
         this.data.push(this.getHeaders());
         this.currentPageId = 0
@@ -30,7 +31,7 @@ export default class SiteCheck {
 
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
-            this.put();
+            this.run();
         })
     }
 
@@ -47,12 +48,12 @@ export default class SiteCheck {
      * Arrayを拡張したオブジェクトを準備する
      * @returns {Array}
      */
-    getDefaultDataArray() {
-        var data = [];
-        data.__proto__.pushData = function (selector, defaults, callback) {
+    getDefaultRowArray() {
+        var row = [];
+        row.__proto__.pushData = function (selector, defaults, callback) {
             this.push(SiteCheck.parse(selector, defaults, callback))
         }
-        return data;
+        return row;
     }
 
     /**
@@ -61,7 +62,7 @@ export default class SiteCheck {
      *
      * @returns {boolean}
      */
-    put() {
+    run() {
 
         var currentUrl = this.checkPages[this.currentPageId]
 
@@ -75,22 +76,22 @@ export default class SiteCheck {
          */
         request(currentUrl, (error, response, body) => {
             var url = currentUrl;
-            let _data = this.getDefaultDataArray()
+            let row = this.getDefaultRowArray()
             let $ = cheerio.load(body)
 
-            _data.push(this.currentPageId)
-            _data.push(url)
+            row.push(this.currentPageId)
+            row.push(url)
 
             // タイトル
-            _data.pushData($("title"), "タイトルが設定されていません")
+            row.pushData($("title"), "タイトルが設定されていません")
 
             // 説明文
-            _data.pushData($("meta[name='description']"), "説明文が設定されていません", (data) => {
+            row.pushData($("meta[name='description']"), "説明文が設定されていません", (data) => {
                 return data.attr("content")
             })
 
             // h1
-            _data.pushData($("h1"), "h1が設定されていません", (data) => {
+            row.pushData($("h1"), "h1が設定されていません", (data) => {
                 if (data.find("img").length) {
                     return data.find("img").attr("alt");
                 }
@@ -98,25 +99,25 @@ export default class SiteCheck {
             })
 
             // h2
-            _data.pushData($("h2"), "h2が設定されていません", (data) => {
+            row.pushData($("h2"), "h2が設定されていません", (data) => {
                 return data.text().replace(/\r?\n/g, "").trim()
             })
 
             // tel
-            _data.pushData(body, "電話番号がありません", (data) => {
+            row.pushData(body, "電話番号がありません", (data) => {
                 var telMatch = data.match(/0\d{1,3}-\d{2,4}-\d{4}/g)
                 if (telMatch && telMatch.length >= 1) {
-                    return '"' + telMatch.join(",") + '"'
+                    return telMatch.join(",")
                 }
             })
 
             // 電話番号リンク
-            _data.pushData($("a[href^='tel:']"), "電話番号リンクは見つかりませんでした", (telLinks) => {
+            row.pushData($("a[href^='tel:']"), "電話番号リンクは見つかりませんでした", (telLinks) => {
                 var tellinkstext = "なし"
                 if (telLinks && telLinks.length >= 1 && typeof telLinks.join !== "undefined") {
                     tellinkstext = telLinks.join("\,")
                 }
-                return '"' + tellinkstext + '"';
+                return tellinkstext;
             })
 
             /** htmllint の設定 */
@@ -146,10 +147,11 @@ export default class SiteCheck {
                     _issues.push(msg);
                 });
                 var msg = _issues.join('\n');
-                _data.push( '"' + msg.replace(/"/g,'\"') + '"')
+                row.push( msg.replace(/"/g,'\"'))
             })
-            this.data.push(_data);
-            this.put(this.currentPageId++);
+
+            this.data.push(row);
+            this.run(this.currentPageId++);
         })
     }
 
@@ -159,23 +161,30 @@ export default class SiteCheck {
      */
     output() {
         var lineArray = []
+        var headers = this.data[0]
         this.data.forEach(function (infoArray, index) {
-            var line = infoArray.join(",")
-            lineArray.push(line)
-        })
-        var csvContent = lineArray.join("\n")
-        fsextra.outputFile(config.get("resultsDirPath") + options.output, csvContent, (err, data) => {
-            if (err) {
-                console.log(err);
+
+            var obj = {}
+            for(var i = 0; i < headers.length; i++){
+                obj[headers[i]] = infoArray[i]
             }
 
-            this._resolve(this);
-            log("sitecheck_results.csv へエクスポートしました")
+            lineArray.push(obj)
+        })
+        exportCsv(lineArray).then((data)=>{
+            fsextra.outputFile(config.get("resultsDirPath") + options.output, data, (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+                this._resolve(this);
+                log("sitecheck_results.csv へエクスポートしました")
+            })
         })
     }
 
     /**
      * chelio オブジェクトを拡張
+     *
      * @param selector
      * @param defaults
      * @param callback

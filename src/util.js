@@ -6,34 +6,40 @@ const options = config.get("screenshot");
 /**
  * ログを出力
  */
-export const log = function(text,device,url) {
+export const log = function (text, device, url) {
+
     let log = chalk.blue.bold('[sitetestpack] ');
 
-    if ( typeof url !== "undefined" && url !== false ){
+    if (typeof url !== "undefined" && url !== false) {
         log += chalk.green.bold(" " + url + " ");
     }
 
-    if ( typeof device !== "undefined" && device !== false ){
+    if (typeof device !== "undefined" && device !== false) {
         log += chalk.red.bold(" (" + device.toUpperCase() + ") ");
     }
+
     log += " " + text;
-    console.log( log )
+    console.log(log)
 }
+
 /**
- * ディレクトリを作成
+ * ディレクトリを作成する
+ *
+ * @returns Promise オブジェクト
  */
-export const makeDirectory = function(callback) {
-    return new Promise(function(resolve,reject){
-        var viewportsLen= Object.keys(options.viewports).length;
+export const makeDirectory = function () {
+
+    return new Promise(function (resolve, reject) {
+        var viewportsLen = Object.keys(options.viewports).length;
 
         var forCounter = 1;
-        for( var device in options.viewports) {
+        for (var device in options.viewports) {
             fs.ensureDir(config.get("resultsDirPath") + options.dir + "/" + device, function (err) {
                 if (err) {
                     reject()
                     return false;
                 }
-                if ( forCounter === viewportsLen ){
+                if (forCounter === viewportsLen) {
                     resolve();
                 }
                 forCounter++;
@@ -42,12 +48,16 @@ export const makeDirectory = function(callback) {
     })
 }
 
-// ディレクトリをキレイに
+/**
+ * ディレクトリを削除する
+ *
+ * @returns Promise オブジェクトを返す
+ */
 export const cleanDirectroy = function () {
-    return new Promise(function(resolve,reject){
+    return new Promise(function (resolve, reject) {
         fs.remove(config.get("resultsDirPath") + options.dir, function () {
             log("ディレクトリを清掃...")
-            makeDirectory().then(function(){
+            makeDirectory().then(function () {
                 resolve();
             });
         })
