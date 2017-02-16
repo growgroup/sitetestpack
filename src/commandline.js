@@ -51,7 +51,7 @@ prompt.get({
 
 
     // 現在のパスを基点に設定する
-    config.set("resultsDirPath",process.cwd() + "/results/")
+    config.set("resultsDirPath",process.cwd() + "/sitetestpack_results/")
 
     /**
      * 1. リンクを取得する
