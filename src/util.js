@@ -1,15 +1,13 @@
 import chalk from "chalk"
 import fs from "fs-extra"
-import util from 'util'
 import config from "./config.js"
-const pages = config.pages;
-const options = config.screenshots;
+const options = config.get("screenshot");
 
 /**
  * ログを出力
  */
 export const log = function(text,device,url) {
-    let log = chalk.blue.bold('[GG] ');
+    let log = chalk.blue.bold('[sitetestpack] ');
 
     if ( typeof url !== "undefined" && url !== false ){
         log += chalk.green.bold(" " + url + " ");
@@ -18,30 +16,40 @@ export const log = function(text,device,url) {
     if ( typeof device !== "undefined" && device !== false ){
         log += chalk.red.bold(" (" + device.toUpperCase() + ") ");
     }
-
     log += " " + text;
     console.log( log )
 }
-
 /**
  * ディレクトリを作成
  */
-export const makeDirectory = function (callback) {
-    for( var device in options.viewports) {
-        fs.ensureDir(options.screenshotPath + "/" + device, function (err) {
-            if (err) {
-                console.log(err)
-                return false;
-            }
-        });
-    }
-    callback();
+export const makeDirectory = function(callback) {
+    return new Promise(function(resolve,reject){
+        var viewportsLen= Object.keys(options.viewports).length;
+
+        var forCounter = 1;
+        for( var device in options.viewports) {
+            fs.ensureDir(config.get("resultsDirPath") + options.dir + "/" + device, function (err) {
+                if (err) {
+                    reject()
+                    return false;
+                }
+                if ( forCounter === viewportsLen ){
+                    resolve();
+                }
+                forCounter++;
+            });
+        }
+    })
 }
 
 // ディレクトリをキレイに
-export const cleanDirectroy = function (callback) {
-    fs.remove(options.screenshotPath, function () {
-        log("ディレクトリを清掃...")
-        makeDirectory(callback);
+export const cleanDirectroy = function () {
+    return new Promise(function(resolve,reject){
+        fs.remove(config.get("resultsDirPath") + options.dir, function () {
+            log("ディレクトリを清掃...")
+            makeDirectory().then(function(){
+                resolve();
+            });
+        })
     })
 }

@@ -7,13 +7,14 @@
   },
   "scripts": {
     "start": "babel-node index.js",
-    "compile": "babel src -d dist"
+    "compile": "babel src -d dist",
+    "postinstall": "npm run compile"
   },
-  "bin" : {
+  "bin": {
     "sitetestpack": "bin/cli.js"
   },
   "file": [
-  	"bin/cli.js"
+    "bin/cli.js"
   ],
   "author": "GrowGroup",
   "devDependencies": {
@@ -26,6 +27,7 @@
     "cheerio": "^0.22.0",
     "cli-table2": "^0.2.0",
     "colors": "^1.1.2",
+    "configstore": "^3.0.0",
     "del": "^2.2.0",
     "fs-extra": "^2.0.0",
     "pageres": "^4.3.0",

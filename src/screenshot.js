@@ -1,8 +1,8 @@
 import {cleanDirectroy, log} from "./util.js"
 import config from "./config.js"
 const Pageres = require("pageres")
-const defaultPages = config.pages
-const options = config.screenshots
+const defaultPages = config.get("pages")
+const options = config.get("screenshot")
 
 export default class Screenshot {
 
@@ -26,7 +26,10 @@ export default class Screenshot {
 
         return new Promise((resolve, reject) => {
             this._resolve = resolve
-            cleanDirectroy(this.run)
+            var self = this;
+            cleanDirectroy().then(function(){
+                self.run()
+            })
         })
     }
 
@@ -62,7 +65,7 @@ export default class Screenshot {
         var pageresoptions = Object.assign(_options, options.pageres)
         const _pageres = new Pageres(pageresoptions)
             .src(url, [viewports[device].width + 'x' + viewports[device].height])
-            .dest(options.screenshotPath + device + '/')
+            .dest( config.get("resultsDirPath") + options.dir + device + '/')
             .run()
             .then(() => {
                 log("完了しました", device, url);

@@ -6,7 +6,6 @@ var _safe = require("colors/safe");var _safe2 = _interopRequireDefault(_safe);
 var _cliTable = require("cli-table2");var _cliTable2 = _interopRequireDefault(_cliTable);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 
 
-
 var TITLE = "\n     _____  _____  _____  _____    _____  _____  _____  _____    _____  _____  _____  _____\n    |   __||     ||_   _||   __|  |_   _||   __||   __||_   _|  |  _  ||  _  ||     ||  |  |\n    |__   ||-   -|  | |  |   __|    | |  |   __||__   |  | |    |   __||     ||   --||    -|\n    |_____||_____|  |_|  |_____|    |_|  |_____||_____|  |_|    |__|   |__|__||_____||__|__|\n    ";
 
 

@@ -5,9 +5,9 @@ import {log} from "./util.js"
 import config from "./config.js"
 
 // ページ一覧
-var defaultPages = config.pages
+var defaultPages = config.get("pages")
 // オプション
-const options = config.sitecheck
+const options = config.get("sitecheck")
 
 export default class SiteCheck {
 
@@ -133,7 +133,7 @@ export default class SiteCheck {
             lineArray.push(line)
         })
         var csvContent = lineArray.join("\n")
-        fsextra.outputFile(options.csv, csvContent, (err, data) => {
+        fsextra.outputFile( config.get("resultsDirPath") +  options.output, csvContent, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -160,7 +160,7 @@ export default class SiteCheck {
         if (typeof callback === "string") {
             defaultValue = callback;
         }
-        if ( typeof callback === "function" ){
+        if (typeof callback === "function") {
             parsecallback = callback
         }
 
@@ -177,7 +177,7 @@ export default class SiteCheck {
             }
         }
 
-        if ( typeof data === "undefined" ){
+        if (typeof data === "undefined") {
             return "";
         }
         return data.replace(/(",)/g, "\\$1");

@@ -4,8 +4,9 @@ import URL from 'url-parse';
 import config from "./config.js"
 import fsextra from "fs-extra"
 import LinkQueue from "./linkqueue.js"
-const pages = config.pages
-const options = config.getlinks
+
+const pages = config.get("pages")
+const options = config.get("getlinks")
 
 export default class GetLinks {
 
@@ -174,7 +175,7 @@ export default class GetLinks {
             lineArray.push(line)
         })
         var csvContent = lineArray.join("\n")
-        fsextra.outputFile(options.csv, csvContent, (err, data) => {
+        fsextra.outputFile(config.get("resultsDirPath") + options.output, csvContent, (err, data) => {
             if (err) {
                 console.log(err);
             }

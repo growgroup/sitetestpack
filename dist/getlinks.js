@@ -4,8 +4,8 @@ var _urlParse = require('url-parse');var _urlParse2 = _interopRequireDefault(_ur
 var _config = require('./config.js');var _config2 = _interopRequireDefault(_config);
 var _fsExtra = require('fs-extra');var _fsExtra2 = _interopRequireDefault(_fsExtra);
 var _linkqueue = require('./linkqueue.js');var _linkqueue2 = _interopRequireDefault(_linkqueue);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}
-var pages = _config2.default.pages;
-var options = _config2.default.getlinks;var
+var pages = _config2.default.get("pages");
+var options = _config2.default.get("getlinks");var
 
 GetLinks = function () {
 
@@ -174,7 +174,7 @@ GetLinks = function () {
                 lineArray.push(line);
             });
             var csvContent = lineArray.join("\n");
-            _fsExtra2.default.outputFile(options.csv, csvContent, function (err, data) {
+            _fsExtra2.default.outputFile(_config2.default.get("resultsDirPath") + options.output, csvContent, function (err, data) {
                 if (err) {
                     console.log(err);
                 }
