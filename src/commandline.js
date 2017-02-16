@@ -48,6 +48,11 @@ prompt.get({
     if (err) {
         throw err;
     }
+
+
+    // 現在のパスを基点に設定する
+    config.set("resultsDirPath",process.cwd() + "/results/")
+
     /**
      * 1. リンクを取得する
      */
