@@ -97,6 +97,12 @@ export default class GetLinks {
 
         });
     }
+    sort(){
+        this.listurls.sort(function(a,b){
+            console.log(b.url)
+            return (a.url > b.url)
+        })
+    }
 
     /**
      * リンクをし、queue へ格納する
@@ -166,6 +172,7 @@ export default class GetLinks {
      * CSVに出力する
      */
     output() {
+        this.sort();
         var lineArray = []
         var headers = ["ID","url","title"]
         lineArray.push(headers)

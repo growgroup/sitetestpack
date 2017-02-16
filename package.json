@@ -30,6 +30,7 @@
     "configstore": "^3.0.0",
     "del": "^2.2.0",
     "fs-extra": "^2.0.0",
+    "htmllint": "^0.6.0",
     "pageres": "^4.3.0",
     "prompt": "^1.0.0",
     "request": "^2.79.0",

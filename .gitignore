@@ -3,3 +3,5 @@ results
 *.log
 .idea
 dist
+src/results
+dist/results

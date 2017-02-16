@@ -1,6 +1,8 @@
 import cheerio from 'cheerio'
 import request from 'request'
+
 import fsextra from "fs-extra"
+import htmllint from "htmllint"
 import {log} from "./util.js"
 import config from "./config.js"
 
@@ -37,7 +39,7 @@ export default class SiteCheck {
      * @returns {[string,string,string,string,string,string,string,string]}
      */
     getHeaders() {
-        return ["id", "url", "title", "description", "h1", "h2", "tel&fax", "tel link"]
+        return ["id", "url", "title", "description", "h1", "h2", "tel&fax", "tel link", "html lint"]
     }
 
 
@@ -89,10 +91,10 @@ export default class SiteCheck {
 
             // h1
             _data.pushData($("h1"), "h1が設定されていません", (data) => {
-                if (data.find("img")) {
+                if (data.find("img").length) {
                     return data.find("img").attr("alt");
                 }
-                return data.text();
+                return data.text().replace(/\r?\n/g, "").trim();
             })
 
             // h2
@@ -104,19 +106,48 @@ export default class SiteCheck {
             _data.pushData(body, "電話番号がありません", (data) => {
                 var telMatch = data.match(/0\d{1,3}-\d{2,4}-\d{4}/g)
                 if (telMatch && telMatch.length >= 1) {
-                    return telMatch.join(",")
+                    return '"' + telMatch.join(",") + '"'
                 }
             })
 
             // 電話番号リンク
-            _data.pushData($("a[href^='tel:']"), "なし", (telLinks) => {
+            _data.pushData($("a[href^='tel:']"), "電話番号リンクは見つかりませんでした", (telLinks) => {
                 var tellinkstext = "なし"
                 if (telLinks && telLinks.length >= 1 && typeof telLinks.join !== "undefined") {
-                    tellinkstext = telLinks.join(",")
+                    tellinkstext = telLinks.join("\,")
                 }
-                return tellinkstext;
+                return '"' + tellinkstext + '"';
             })
 
+            /** htmllint の設定 */
+            htmllint.rules = {
+                "attr-bans": ['align', 'background', 'bgcolor', 'border', 'frameborder', 'longdesc', 'marginwidth', 'marginheight', 'scrolling', 'width'],
+                "attr-no-dup": false,
+                "attr-quote-style": false,
+                "attr-name-style": true,
+                "head-req-title": true,
+                "href-style": false,
+                "id-class-style": false,
+                "img-req-alt": true,
+                "img-req-src": true,
+                "indent-style": false,
+                "indent-width": false,
+                "indent-width-cont": false,
+                "tag-close": true
+            }
+            htmllint(body).then((issues) => {
+                var _issues = []
+                issues.forEach(function (issue) {
+                    var msg = [
+                        'line ', issue.line, ', ',
+                        'col ', issue.column, ', ',
+                        htmllint.messages.renderIssue(issue)
+                    ].join('');
+                    _issues.push(msg);
+                });
+                var msg = _issues.join('\n');
+                _data.push( '"' + msg.replace(/"/g,'\"') + '"')
+            })
             this.data.push(_data);
             this.put(this.currentPageId++);
         })
@@ -133,7 +164,7 @@ export default class SiteCheck {
             lineArray.push(line)
         })
         var csvContent = lineArray.join("\n")
-        fsextra.outputFile( config.get("resultsDirPath") +  options.output, csvContent, (err, data) => {
+        fsextra.outputFile(config.get("resultsDirPath") + options.output, csvContent, (err, data) => {
             if (err) {
                 console.log(err);
             }

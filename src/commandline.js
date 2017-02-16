@@ -41,7 +41,7 @@ prompt.get({
         runScreenshot: {
             description: colors.magenta("5. スクリーンショットを撮りますか？(y or n)"),
             default: "y",
-            
+
         },
     }
 }, function (err, result) {
