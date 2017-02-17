@@ -49,59 +49,63 @@ prompt.get({
         throw err;
     }
 
-
     // 現在のパスを基点に設定する
-    config.set("resultsDirPath",process.cwd() + "/sitetestpack_results/")
+    config.set("resultsDirPath", process.cwd() + "/sitetestpack_results/")
 
     /**
      * 1. リンクを取得する
      */
     console.log(colors.cyan(result.url + " からURL一覧を取得しています...."));
-    var getlinks = new GetLinks(result.url, "", result.number, result.ignoreurl);
-    getlinks.then(function (data) {
-        var table = new Table({
-            head: ["url", "title"]
-        })
-        var _pages = []
-        for (var i = 0; i < data.length; i++) {
-            table.push([data[i].url, data[i].title])
-            _pages.push(data[i].url);
-        }
-        console.log(colors.cyan(table.toString()))
-        if (result.runSitecheck === "y") {
-            /**
-             * 2. サイトチェック
-             * @type {SiteCheck}
-             */
-            console.log(colors.cyan("サイトチェックを開始しています...."))
-            var sc = new SiteCheck(_pages);
-            sc.then(function (scObj) {
-                var table = new Table();
-                for (var i = 0; i < scObj.data.length; i++) {
-                    table.push(scObj.data[i])
-                }
-                console.log(colors.cyan(table.toString()))
-                console.log(colors.cyan("チェック結果をcsvにエクスポートしました"))
-                if (result.runScreenshot === "y") {
-                    /**
-                     * スクリーンショット
-                     * @type {Screenshot}
-                     */
-                    new Screenshot(0, _pages);
-                }
+
+    new GetLinks(result.url, "", result.number, result.ignoreurl)
+        .then(function (data) {
+            var table = new Table({
+                head: ["url", "title"]
             })
-        }
+            var _pages = []
+            for (var i = 0; i < data.length; i++) {
+                table.push([data[i].url, data[i].title])
+                _pages.push(data[i].url);
+            }
 
-        if (result.runSitecheck === "n" && result.runScreenshot === "y") {
-            /**
-             * スクリーンショット
-             * @type {Screenshot}
-             */
-            new Screenshot(0, _pages);
+            // configStore にセット
+            config.set("pages", _pages);
 
-        }
+            console.log(colors.cyan(table.toString()))
 
-    })
+            if (result.runSitecheck === "y") {
+
+                /**
+                 * 2. サイトチェック
+                 * @type {SiteCheck}
+                 */
+                console.log(colors.cyan("サイトチェックを開始しています...."))
+                new SiteCheck(config.get("pages")).then(function (scObj) {
+                    var table = new Table();
+                    for (var i = 0; i < scObj.data.length; i++) {
+                        table.push(scObj.data[i])
+                    }
+                    console.log(colors.cyan(table.toString()))
+                    console.log(colors.cyan("チェック結果をcsvにエクスポートしました"))
+                    if (result.runScreenshot === "y") {
+                        /**
+                         * スクリーンショット
+                         * @type {Screenshot}
+                         */
+                        new Screenshot(config.get("pages"));
+                    }
+                })
+            }
+
+            if (result.runSitecheck === "n" && result.runScreenshot === "y") {
+
+                /**
+                 * スクリーンショット
+                 * @type {Screenshot}
+                 */
+                new Screenshot(config.get("pages"));
+            }
+        })
 });
 
 

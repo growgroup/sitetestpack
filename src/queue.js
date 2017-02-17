@@ -3,8 +3,13 @@ export default class Queue {
     /**
      * 初期化
      */
-    constructor() {
+    constructor(queue) {
         this._queue = []
+
+        if (typeof queue === "object") {
+            this._queue = queue;
+        }
+
         this._queuehistory = []
     }
 

@@ -55,11 +55,11 @@ export const makeDirectory = function () {
  */
 export const cleanDirectroy = function () {
     return new Promise(function (resolve, reject) {
-        fs.remove(config.get("resultsDirPath") + options.dir, function () {
-            log("ディレクトリを清掃...")
-            makeDirectory().then(function () {
-                resolve();
-            });
+        fs.remove(config.get("resultsDirPath"), function () {
+            log("ディレクトリを清掃しています...")
+            // makeDirectory().then(function () {
+            resolve();
+            // });
         })
     })
 }

@@ -1,7 +1,8 @@
 import {cleanDirectroy, log} from "./util.js"
+import Queue from "./queue.js"
 import config from "./config.js"
+
 const Pageres = require("pageres")
-const defaultPages = config.get("pages")
 const options = config.get("screenshot")
 
 export default class Screenshot {
@@ -10,35 +11,37 @@ export default class Screenshot {
      * コンストラクタ
      * @param activekey
      */
-    constructor(activekey, _pages) {
-        this.pages = defaultPages
-        if (typeof _pages !== "undefined") {
-            this.pages = _pages;
+    constructor(_pages) {
+
+        if (typeof _pages === "undefined") {
+            throw new Error("スクリーンショットを撮るURLがありません")
         }
+
         if (typeof activekey === "undefined") {
             var activekey = 0
         }
-        log("スクリーンショットを開始します...");
+
+        this.queue = new Queue(_pages)
+
         this.run = this.run.bind(this)
         this.shot = this.shot.bind(this)
-
-        this.activekey = activekey
 
         return new Promise((resolve, reject) => {
             this._resolve = resolve
             var self = this;
-            cleanDirectroy().then(function(){
-                self.run()
-            })
+            // cleanDirectroy().then(function () {
+            self.run()
+            // })
         })
     }
+
 
     /**
      * スクリーンショットをデバイスごとに実行する
      */
     run() {
         for (var device in options.viewports) {
-            this.shot(this.pages[this.activekey], device)
+            this.shot(this.queue.next(), device)
         }
     }
 
@@ -63,15 +66,14 @@ export default class Screenshot {
             delay: 1
         }
         var pageresoptions = Object.assign(_options, options.pageres)
-        const _pageres = new Pageres(pageresoptions)
+        new Pageres(pageresoptions)
             .src(url, [viewports[device].width + 'x' + viewports[device].height])
-            .dest( config.get("resultsDirPath") + options.dir + device + '/')
+            .dest(config.get("resultsDirPath") + options.dir + device + '/')
             .run()
             .then(() => {
                 log("完了しました", device, url);
-                this.activekey++
-                if (typeof this.pages[this.activekey] === "undefined") {
-                    this._resolve(this)
+                if (typeof this.queue.next() === "undefined") {
+                    this._resolve()
                     return false;
                 }
                 this.run();
