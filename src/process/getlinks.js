@@ -62,8 +62,6 @@ export default class GetLinks {
             return this.queue;
         }
 
-
-
         if (this.queue.find(nextPage) > 0) {
             this.crawl();
         } else {
@@ -130,13 +128,8 @@ export default class GetLinks {
             return false;
         }
 
-        // ハッシュ、またはクエリストリングで生成されたURLかどうか調査
-        if (url.match(/(?:#|\?)/g)) {
-            return false;
-        }
-
-        // urlが画像ファイルの場合除外
-        if (url.match(/(?:\.png|\.jpg|\.jpeg|.\.gif)/g)) {
+        // ハッシュ、またはクエリストリングで生成されたURL、画像ファイル拡張子を含まないかどうか調査
+        if (url.match(/(?:#|\?|\.png|\.jpg|\.jpeg|\.gif)/g)) {
             return false;
         }
 
@@ -165,7 +158,7 @@ export default class GetLinks {
         lineArray.push(headers)
 
         this.linklist.forEach(function (infoArray, index) {
-            var _infoArray = [index, infoArray.url, infoArray.title]
+            var _infoArray = [index+1, infoArray.url, infoArray.title]
             lineArray.push(_infoArray)
 
         })
