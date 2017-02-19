@@ -1,12 +1,12 @@
 {
   "name": "sitetestpack",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "This is a test script for the website",
   "engines": {
     "node": ">=5.0.0"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha --compilers js:babel-register test/*.js",
+    "test": "NODE_ENV=test mocha --compilers js:babel-register",
     "start": "babel-node index.js",
     "compile": "babel src -d dist",
     "postinstall": "npm run compile"
