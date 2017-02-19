@@ -1,24 +1,44 @@
 # SITE TEST PACK
 
-## Install
+
+## 背景
+
+Webサイトのテスト工程において、デザインチェックや、SEO関連の設定、
+コーディングルールへの対応など、とにかくチェックに時間がかかっていました。
+
+## 目的
+
+業務フロー内のでWebサイトコーディングにおいて、以下の作業時間短縮を目的としています。
+
+* デザインチェックのためのスクリーンショットの自動生成
+* コーディングルールに沿っているかどうかの確認
+* SEO設定の確認
+
+## 必要条件
+
+* node >= 6.3.1
+* npm >= 4.0.0
+
+## インストール
 
 ```bash
 npm install -g sitetestpack
 ```
 
-## Features
+## 主な機能
 
-* GetLinks: Crawl the website and get the links in the same domain that are valid.
-* SiteCheck: Based on the acquired URL, check SEO check (title, description, h1..etc), htmllint, telephone number etc and output it to CSV file.
-* Screenshot: Based on the acquired URL, take a screenshot (pc, mobile) all at once. I use pageres.
+* リンクの取得: 一つのURLを元に、サイト内のページリストを取得します。
+* サイトチェック: 取得したページリストを元に、titleタグやmeta description, h1, h2, 電話番号(※ミスタイポがあると致命的なため), htmllint を通し、CSVに出力します。
+* スクリーンショット: 取得したページリストを元に、スクリーンショットを生成します。内部的には pageres を利用しています。
 
-## Usage
-Go to the directory where the result file is output and enter the following command.
+## 使い方
+
+結果ファイルを出力したいディレクトリに移動し、次のコマンドを入力します。
 
 ```bash
 $ sitetestpack
 ```
 
-Prompt will start up.
-Also, create a `sitetestpack_results`
-directory directly under the directory where you typed the command after completion;
+プロンプトが起動しますので、質問事項にそって入力を進めてください。
+
+完了後に、コマンドを打ったディレクトリ直下に ```sitetestpack_results``` ディレクトリを生成します。
