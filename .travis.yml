@@ -8,4 +8,4 @@ install:
 script:
     - npm run build
     - npm run test
-    - sh ./bin/cli.js
+    - ./bin/cli.js

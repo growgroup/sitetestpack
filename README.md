@@ -1,7 +1,5 @@
 # SITE TEST PACK
 
-**Warning**: It is a package that is not yet complete.
-
 ## Install
 
 ```bash
