@@ -129,7 +129,7 @@ export default class GetLinks {
         }
 
         // ハッシュ、またはクエリストリングで生成されたURL、画像ファイル拡張子を含まないかどうか調査
-        if (url.match(/(?:#|\?|\.png|\.jpg|\.jpeg|.\.gif)/g)) {
+        if (url.match(/(?:#|\?|\.png|\.jpg|\.jpeg|\.gif)/g)) {
             return false;
         }
 
