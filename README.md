@@ -22,3 +22,5 @@ $ sitetestpack
 ```
 
 Prompt will start up.
+Also, create a `sitetestpack_results`
+directory directly under the directory where you typed the command after completion;
