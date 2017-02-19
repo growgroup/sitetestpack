@@ -2,14 +2,18 @@ import cheerio from 'cheerio'
 import request from 'request'
 import fsextra from "fs-extra"
 import htmllint from "htmllint"
-import {log} from "./util.js"
-import exportCsv from "./export_csv.js"
-import config from "./config.js"
+import htmllintMessageJa from "../misc/htmllint_message_ja.js"
+import config from "../config.js"
+import exportCsv from "../misc/export_csv.js"
+import Queue from "../queue"
+import {log} from "../misc/util.js"
 
-// ページ一覧
-var defaultPages = config.get("pages")
-// オプション
 const options = config.get("sitecheck")
+
+// htmllint のルールを定義
+// https://github.com/htmllint/htmllint/wiki/Options
+htmllint.rules = options.htmllintRules
+
 
 export default class SiteCheck {
 
@@ -17,17 +21,13 @@ export default class SiteCheck {
      * @param pages チェックするページ一覧
      */
     constructor(pages) {
-
         // チェックするページ
-        this.checkPages = defaultPages;
-        if (typeof pages !== "undefined") {
-            this.checkPages = pages
+        if (typeof pages === "undefined") {
+            throw new Error("Invaild Paramater. Required Page List.")
         }
-
+        this.queue = new Queue(pages.reverse())
         this.data = [];
         this.data.push(this.getHeaders());
-        this.currentPageId = 0
-        this.maxPageLength = this.checkPages.length
 
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
@@ -64,23 +64,22 @@ export default class SiteCheck {
      */
     run() {
 
-        var currentUrl = this.checkPages[this.currentPageId]
-
-        if (this.currentPageId === this.maxPageLength) {
+        if (!this.queue.isNext()) {
             this.output(this.data)
             return false;
         }
 
+        var checkurl = this.queue.next()
+
         /**
          * URLを取得
          */
-        request(currentUrl, (error, response, body) => {
-            var url = currentUrl;
+        request(checkurl, (error, response, body) => {
             let row = this.getDefaultRowArray()
             let $ = cheerio.load(body)
 
-            row.push(this.currentPageId)
-            row.push(url)
+            row.push(this.data.length)
+            row.push(checkurl)
 
             // タイトル
             row.pushData($("title"), "タイトルが設定されていません")
@@ -120,39 +119,24 @@ export default class SiteCheck {
                 return tellinkstext;
             })
 
-            /** htmllint の設定 */
-            htmllint.rules = {
-                "attr-bans": ['align', 'background', 'bgcolor', 'border', 'frameborder', 'longdesc', 'marginwidth', 'marginheight', 'scrolling', 'width'],
-                "attr-no-dup": false,
-                "attr-quote-style": false,
-                "attr-name-style": true,
-                "head-req-title": true,
-                "href-style": false,
-                "id-class-style": false,
-                "img-req-alt": true,
-                "img-req-src": true,
-                "indent-style": false,
-                "indent-width": false,
-                "indent-width-cont": false,
-                "tag-close": true
-            }
             htmllint(body).then((issues) => {
                 var _issues = []
-                issues.forEach(function (issue) {
+                issues.forEach((issue) => {
                     var msg = [
                         'line ', issue.line, ', ',
                         'col ', issue.column, ', ',
-                        htmllint.messages.renderIssue(issue)
+                        htmllintMessageJa.renderIssue(issue)
                     ].join('');
                     _issues.push(msg);
                 });
-                var msg = _issues.join('\n');
-                row.push( msg.replace(/"/g,'\"'))
+                var parsemsg = _issues.join('\n');
+                row.push(parsemsg.replace(/"/g, '\"'))
             })
-
             this.data.push(row);
-            this.run(this.currentPageId++);
+            this.run();
         })
+
+
     }
 
     /**
@@ -163,15 +147,13 @@ export default class SiteCheck {
         var lineArray = []
         var headers = this.data[0]
         this.data.forEach(function (infoArray, index) {
-
             var obj = {}
-            for(var i = 0; i < headers.length; i++){
+            for (var i = 0; i < headers.length; i++) {
                 obj[headers[i]] = infoArray[i]
             }
-
             lineArray.push(obj)
         })
-        exportCsv(lineArray).then((data)=>{
+        exportCsv(lineArray).then((data) => {
             fsextra.outputFile(config.get("resultsDirPath") + options.output, data, (err, data) => {
                 if (err) {
                     console.log(err);

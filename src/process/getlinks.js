@@ -1,10 +1,11 @@
 import request from "request"
 import cheerio from 'cheerio'
 import URL from 'url-parse';
-import config from "./config.js"
 import fsextra from "fs-extra"
-import exportCsv from "./export_csv.js"
-import LinkQueue from "./linkqueue.js"
+import config from "../config.js"
+import exportCsv from "../misc/export_csv.js"
+import Queue from "../queue"
+import LinkQueue from "../queue/linkqueue.js"
 
 const pages = config.get("pages")
 const options = config.get("getlinks")
@@ -12,21 +13,21 @@ const options = config.get("getlinks")
 export default class GetLinks {
 
     /**
-     * Constructor
-     * @param startUrl
-     * @param keyword
+     * @param startUrl 基点となるURL
+     * @param limit 制限数
+     * @param ignoresPattern 除外するURLの正規表現パターン
      */
-    constructor(startUrl, keyword, number, ignore) {
+    constructor(startUrl, limit, ignoresPattern) {
 
-        this.ignoreUrl = ignore
+        this.linklist = new Queue();
+
+        this.ignoresPattern = ignoresPattern
         this.startUrl = startUrl
-        this.searchKeyword = keyword
-        this.maxPages = number
-        this.countVisitedPage = 0;
+        this.limit = limit
 
+        this.countVisitedPage = 0;
         this.url = new URL(this.startUrl)
         this.baseUrl = this.url.protocol + "//" + this.url.hostname;
-        this.listurls = []
 
         this.queue = new LinkQueue();
         this.queue.add(this.startUrl);
@@ -34,10 +35,19 @@ export default class GetLinks {
         this.visitPage = this.visitPage.bind(this)
         this.crawl = this.crawl.bind(this)
         this.checkURL = this.checkURL.bind(this)
-        return new Promise((resolve, reject) => {
+
+        this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
-            this.crawl();
         });
+        this.crawl();
+    }
+
+    /**
+     * プロミスを返す
+     * @returns {Promise}
+     */
+    getPromise() {
+        return this._promise
     }
 
     /**
@@ -45,25 +55,18 @@ export default class GetLinks {
      */
     crawl() {
 
-        if (this.countVisitedPage >= this.maxPages) {
-            console.log("最大取得数に達しました");
-            this._resolve(this.listurls);
-            this.output()
-            return this.queue;
-        }
-
         var nextPage = this.queue.next();
 
-        if (typeof nextPage === "undefined") {
-            this._resolve(this.listurls);
-            this.output()
+        if (this.countVisitedPage >= this.limit || typeof nextPage === "undefined") {
+            this.complete()
             return this.queue;
         }
 
-        if ( this.queue.find(nextPage) > 0 ) {
+
+
+        if (this.queue.find(nextPage) > 0) {
             this.crawl();
         } else {
-
             this.visitPage(nextPage, this.crawl);
         }
 
@@ -75,27 +78,16 @@ export default class GetLinks {
     visitPage(url, callback) {
         this.countVisitedPage++;
         var self = this
-        console.log("" + url);
+        console.log(this.countVisitedPage +":" + url);
         request(url, function (error, response, body) {
             if (response.statusCode !== 200) {
                 callback();
                 return;
             }
             var $ = cheerio.load(body);
-            self.listurls.push({url: url, title: $("title").text()})
-            if (self.searchKeyword) {
-                var isWordFound = self.searchForWord($, self.searchKeyword);
-                if (isWordFound) {
-                    console.log('検索している単語が見つかりました: ' + self.searchKeyword + ' URL: ' + url);
-                } else {
-                    self.collectInternalLinks($);
-                    callback();
-                }
-            } else {
-                self.collectInternalLinks($);
-                callback();
-            }
-
+            self.linklist.add({url: url, title: $("title").text()})
+            self.collectInternalLinks($);
+            callback();
         });
     }
 
@@ -134,7 +126,7 @@ export default class GetLinks {
     checkURL(url) {
 
         // 除外パターンかどうか調査
-        if ( url.match(new RegExp(this.ignoreUrl,"g") ) ){
+        if (url.match(new RegExp(this.ignoresPattern, "g"))) {
             return false;
         }
 
@@ -164,35 +156,33 @@ export default class GetLinks {
     }
 
     /**
-     * リストしたURLを並び替える
+     * CSVに出力する
      */
-    sort(){
-        this.listurls.sort(function(a,b){
-            return (a.url > b.url)
+    output() {
+        this.linklist.sort("url");
+        var lineArray = []
+        var headers = ["ID", "url", "title"]
+        lineArray.push(headers)
+
+        this.linklist.forEach(function (infoArray, index) {
+            var _infoArray = [index, infoArray.url, infoArray.title]
+            lineArray.push(_infoArray)
+
+        })
+        exportCsv(lineArray).then((data) => {
+            fsextra.outputFile(config.get("resultsDirPath") + options.output, data, (err, data) => {
+                if (err) {
+                    throw new Error("ファイルの出力に失敗しました")
+                }
+            })
         })
     }
 
     /**
-     * CSVに出力する
+     * 完了時の処理
      */
-    output() {
-        this.sort();
-        var lineArray = []
-        var headers = ["ID","url","title"]
-        lineArray.push(headers)
-        this.listurls.forEach(function (infoArray, index) {
-            var _infoArray = [index,infoArray.url,infoArray.title]
-            lineArray.push(_infoArray)
-        })
-
-        exportCsv(lineArray).then((data)=>{
-
-            fsextra.outputFile(config.get("resultsDirPath") + options.output, data, (err, data) => {
-                if (err) {
-                    console.log(err);
-                }
-            })
-
-        })
+    complete(){
+        this._resolve(this.linklist.all());
+        this.output()
     }
 }

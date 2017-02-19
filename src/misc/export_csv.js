@@ -21,4 +21,5 @@ const exportCsv = function (data) {
         });
     })
 }
+
 export default exportCsv;
