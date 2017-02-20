@@ -7,8 +7,8 @@
   },
   "scripts": {
     "test": "NODE_ENV=test mocha --compilers js:babel-register",
-    "start": "babel-node index.js",
-    "compile": "babel src -d dist",
+    "start": "./node_modules/.bin/babel-node index.js",
+    "compile": "./node_modules/.bin/babel src -d dist",
     "postinstall": "npm run compile"
   },
   "bin": {
