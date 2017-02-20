@@ -1,9 +1,3 @@
-const GetLinks = require("./dist/process/getlinks.js")
-const ScreenShot = require("./dist/process/screenshot.js")
-const SiteCheck = require("./dist/process/sitecheck.js")
-
-module.exports = {
-    getlinks: GetLinks,
-    screenshot: ScreenShot,
-    sitecheck: SiteCheck,
-}
+module.exports.GetLinks = require("./dist/process/getlinks.js").default
+module.exports.ScreenShot = require("./dist/process/screenshot.js").default
+module.exports.SiteCheck = require("./dist/process/sitecheck.js").default
