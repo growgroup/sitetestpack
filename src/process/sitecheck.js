@@ -1,3 +1,4 @@
+import AbstructProcess from "./abstruct_process.js"
 import cheerio from 'cheerio'
 import request from 'request'
 import fsextra from "fs-extra"
@@ -15,12 +16,13 @@ const options = config.get("sitecheck")
 htmllint.rules = options.htmllintRules
 
 
-export default class SiteCheck {
+export default class SiteCheck extends AbstructProcess {
 
     /**
      * @param pages チェックするページ一覧
      */
     constructor(pages) {
+        super()
         // チェックするページ
         if (typeof pages === "undefined") {
             throw new Error("Invaild Paramater. Required Page List.")
@@ -29,10 +31,8 @@ export default class SiteCheck {
         this.data = [];
         this.data.push(this.getHeaders());
 
-        return new Promise((resolve, reject) => {
-            this._resolve = resolve;
-            this.run();
-        })
+        this.run()
+        return this
     }
 
     /**
@@ -156,10 +156,9 @@ export default class SiteCheck {
         exportCsv(lineArray).then((data) => {
             fsextra.outputFile(config.get("resultsDirPath") + options.output, data, (err, data) => {
                 if (err) {
-                    console.log(err);
+                    throw new Error("CSVへの出力に失敗しました")
                 }
-                this._resolve(this);
-                log("sitecheck_results.csv へエクスポートしました")
+                this.resolve(this.data);
             })
         })
     }

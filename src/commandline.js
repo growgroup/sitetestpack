@@ -65,8 +65,7 @@ function command() {
          */
         log(result.url + " からURL一覧を取得しています....");
 
-        var gl = new GetLinks(result.url, result.limit, result.ignorePattern)
-        gl.getPromise().then(function (data) {
+        new GetLinks(result.url, result.limit, result.ignorePattern).then(function (data) {
             var table = new Table({
                 head: ["url", "title"]
             })
@@ -86,12 +85,14 @@ function command() {
                  * @type {SiteCheck}
                  */
                 log("サイトチェックを開始しています...");
-                new SiteCheck(config.get("pages")).then(function (scObj) {
+                new SiteCheck(config.get("pages")).then(function(scObj) {
                     log("サイトチェック結果をcsvにエクスポートしました");
                 })
             }
 
             if (result.runScreenshot === "y") {
+
+                log("スクリーンショットを取っています...この処理は時間がかかる恐れがあります...")
                 /**
                  * スクリーンショット
                  * @type {Screenshot}

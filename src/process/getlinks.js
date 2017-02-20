@@ -1,3 +1,4 @@
+import AbstructProcess from "./abstruct_process.js"
 import request from "request"
 import cheerio from 'cheerio'
 import URL from 'url-parse';
@@ -10,7 +11,7 @@ import LinkQueue from "../queue/linkqueue.js"
 const pages = config.get("pages")
 const options = config.get("getlinks")
 
-export default class GetLinks {
+export default class GetLinks extends AbstructProcess {
 
     /**
      * @param startUrl 基点となるURL
@@ -18,6 +19,8 @@ export default class GetLinks {
      * @param ignoresPattern 除外するURLの正規表現パターン
      */
     constructor(startUrl, limit, ignoresPattern) {
+
+        super();
 
         this.linklist = new Queue();
 
@@ -36,18 +39,7 @@ export default class GetLinks {
         this.crawl = this.crawl.bind(this)
         this.checkURL = this.checkURL.bind(this)
 
-        this._promise = new Promise((resolve, reject) => {
-            this._resolve = resolve;
-        });
         this.crawl();
-    }
-
-    /**
-     * プロミスを返す
-     * @returns {Promise}
-     */
-    getPromise() {
-        return this._promise
     }
 
     /**

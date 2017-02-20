@@ -1,14 +1,16 @@
+import AbstructProcess from "./abstruct_process.js"
 import {log} from "../misc/util.js"
 import Queue from "../queue"
 import config from "../config.js"
 const Pageres = require("pageres")
 const options = config.get("screenshot")
 
-class Screenshot {
+export default class Screenshot extends AbstructProcess{
     /**
      * @param _pages スクリーンショットを撮る配列
      */
     constructor(_pages) {
+        super();
 
         if (typeof _pages === "undefined") {
             throw new Error("Invaild Paramater")
@@ -27,10 +29,7 @@ class Screenshot {
 
         this.shot = this.shot.bind(this)
 
-        return new Promise((resolve, reject) => {
-            this._resolve = resolve
-            this.shot()
-        })
+        this.shot()
     }
 
     /**
@@ -40,8 +39,6 @@ class Screenshot {
      * @returns {boolean}
      */
     shot() {
-
-        log("スクリーンショットを変換しています...");
         var dimension = []
         for (var device in options.viewports) {
             dimension.push(options.viewports[device].width + 'x' + options.viewports[device].height)
@@ -57,11 +54,9 @@ class Screenshot {
             .dest(config.get("resultsDirPath") + options.dir)
             .run()
             .then(() => {
-                log("完了しました");
                 this._resolve()
                 return false;
             });
 
     }
 }
-export default Screenshot
