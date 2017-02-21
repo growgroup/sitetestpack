@@ -1,6 +1,6 @@
 {
   "name": "sitetestpack",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "This is a test script for the website",
   "engines": {
     "node": ">=5.0.0"
