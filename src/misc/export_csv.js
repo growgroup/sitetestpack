@@ -6,7 +6,8 @@ var options = {
     rowDelimiter: "unix",
     quotedString: true,
     quotedEmpty: true,
-    header: true
+    header: true,
+    bom: true
 }
 
 const exportCsv = function (data) {
