@@ -1,8 +1,8 @@
 import AbstructProcess from "./abstruct_process.js"
 import {log} from "../misc/util.js"
-import Queue from "../queue"
+import Queue from "../queue/index.js"
 import config from "../config.js"
-const Pageres = require("pageres")
+import Pageres from "pageres"
 const options = config.get("screenshot")
 
 export default class Screenshot extends AbstructProcess{
@@ -47,11 +47,11 @@ export default class Screenshot extends AbstructProcess{
         while (this.queue.isNext()) {
             var url = this.queue.next()
             this._pageres
-                .src(url, dimension)
+                .source(url, dimension)
         }
 
         this._pageres
-            .dest(config.get("resultsDirPath") + options.dir)
+            .destination(config.get("resultsDirPath") + options.dir)
             .run()
             .then(() => {
                 this._resolve()

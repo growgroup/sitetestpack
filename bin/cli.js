@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require("../dist/commandline.js");
+import "../src/commandline.js";

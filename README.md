@@ -23,7 +23,10 @@ Webサイトのテスト工程において、デザインチェックや、SEO�
 ## インストール
 
 ```bash
-npm install -g sitetestpack
+git clone https://github.com/growgroup/sitetestpack.git
+cd sitetestpack
+npm install
+npm run start
 ```
 
 ## 主な機能
@@ -34,11 +37,6 @@ npm install -g sitetestpack
 
 ## 使い方
 
-結果ファイルを出力したいディレクトリに移動し、次のコマンドを入力します。
-
-```bash
-$ sitetestpack
-```
 
 プロンプトが起動しますので、質問事項にそって入力を進めてください。
 

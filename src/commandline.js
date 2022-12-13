@@ -4,7 +4,7 @@ import Screenshot from "./process/screenshot.js"
 import {cleanDirectroy, log} from "./misc/util.js"
 import config from "./config.js"
 import prompt from "prompt"
-import colors from "colors/safe"
+import colors from "colors/safe.js"
 import Table from "cli-table2"
 
 

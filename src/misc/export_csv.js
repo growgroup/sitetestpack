@@ -1,11 +1,10 @@
-import csv from "csv"
+import {stringify} from "csv"
 
 var options = {
     delimiter: ",",
     quoted: true,
     rowDelimiter: "unix",
     quotedString: true,
-    escape: true,
     quotedEmpty: true,
     header: true
 }
@@ -13,7 +12,7 @@ var options = {
 const exportCsv = function (data) {
     return new Promise(function (resolve, reject) {
         options["columns"] = data.shift()
-        csv.stringify(data, options, (err, data) => {
+        stringify(data, options, (err, data) => {
             if (err) {
                 reject();
             }

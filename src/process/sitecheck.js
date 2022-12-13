@@ -6,7 +6,7 @@ import htmllint from "htmllint"
 import htmllintMessageJa from "../misc/htmllint_message_ja.js"
 import config from "../config.js"
 import exportCsv from "../misc/export_csv.js"
-import Queue from "../queue"
+import Queue from "../queue/index.js"
 import {log} from "../misc/util.js"
 
 const options = config.get("sitecheck")

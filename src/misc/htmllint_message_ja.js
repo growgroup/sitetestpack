@@ -1,4 +1,4 @@
-var lodash = require('lodash');
+import lodash from 'lodash';
 
 var errors = {
     E000: '有効なエラーコードではありません',

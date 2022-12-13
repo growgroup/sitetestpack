@@ -5,7 +5,7 @@ import URL from 'url-parse';
 import fsextra from "fs-extra"
 import config from "../config.js"
 import exportCsv from "../misc/export_csv.js"
-import Queue from "../queue"
+import Queue from "../queue/index.js"
 import LinkQueue from "../queue/linkqueue.js"
 
 const pages = config.get("pages")

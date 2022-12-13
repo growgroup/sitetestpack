@@ -1,7 +1,13 @@
-import ConfigStore from "configstore"
-const pkg = require("../package.json")
+import configstore from 'configstore';
+import fs from 'fs';
+import path from 'path';
+import {fileURLToPath} from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const packageJson = JSON.parse(fs.readFileSync( __dirname + '/../package.json', 'utf8'));
 
-export default new ConfigStore(pkg.name, {
+
+export default new configstore(packageJson.name, {
         resultsDirPath: __dirname + "/results/",
         pages: [
             "http://example.com/"
